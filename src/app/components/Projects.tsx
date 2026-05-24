@@ -243,30 +243,61 @@ function MarqueeStrip() {
 }
 
 // ─── README THUMBNAIL ─────────────────────────────────────────────────────────
-function ReadmeThumbnail({ src, color, name }: { src: string | null; color: string; name: string }) {
+function ReadmeThumbnail({
+  src,
+  color,
+  name,
+  eager = false,
+}: {
+  src: string | null;
+  color: string;
+  name: string;
+  eager?: boolean;
+}) {
   const [err, setErr] = useState(false);
-  if (!src || err) {
-    const seed = name.charCodeAt(0) * 7 + name.charCodeAt(name.length - 1) * 13;
-    const shapes = Array.from({ length: 5 }, (_, i) => ({
-      r: 18 + (seed * (i + 3)) % 38,
-      cx: ((seed * (i + 1) * 37) % 200) + 20,
-      cy: ((seed * (i + 2) * 53) % 100) + 10,
-      o: 0.05 + i * 0.025,
-    }));
-    return (
-      <div className="flex h-full w-full items-center justify-center overflow-hidden"
-        style={{ background: `${color}08` }}>
-        <svg width="100%" height="100%" viewBox="0 0 240 120" preserveAspectRatio="xMidYMid slice">
+  const [loaded, setLoaded] = useState(false);
+  const seed = name.charCodeAt(0) * 7 + name.charCodeAt(name.length - 1) * 13;
+  const shapes = useMemo(() => Array.from({ length: 5 }, (_, i) => ({
+    r: 18 + (seed * (i + 3)) % 38,
+    cx: ((seed * (i + 1) * 37) % 200) + 20,
+    cy: ((seed * (i + 2) * 53) % 100) + 10,
+    o: 0.05 + i * 0.025,
+  })), [seed]);
+  const showImage = Boolean(src) && !err;
+
+  useEffect(() => {
+    setErr(false);
+    setLoaded(false);
+  }, [src]);
+
+  return (
+    <div className="project-card-thumb">
+      <div className="project-card-thumb-fallback" style={{ background: `${color}08` }}>
+        <svg width="100%" height="100%" viewBox="0 0 240 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           {shapes.map((s, i) => <circle key={i} cx={s.cx} cy={s.cy} r={s.r} fill={color} opacity={s.o} />)}
           <text x="120" y="68" textAnchor="middle" fontSize="10" fill={color} opacity="0.3"
             fontFamily="monospace">{name.slice(0, 20)}</text>
         </svg>
+        <div className="project-card-thumb-shimmer" />
       </div>
-    );
-  }
-  return (
-    <img src={src} alt="preview" onError={() => setErr(true)}
-      className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
+
+      {showImage ? (
+        <img
+          src={src ?? undefined}
+          alt={`${name} preview`}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => {
+            setErr(true);
+            setLoaded(false);
+          }}
+          className={`project-card-thumb-image ${
+            loaded ? 'project-card-thumb-image-loaded' : 'project-card-thumb-image-loading'
+          }`}
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -417,6 +448,148 @@ function ProjectCard({ project, index, onHover, featured }: {
         </motion.div>
       </SpotlightCard>
     </motion.div>
+  );
+}
+
+function GridProjectCard({ project, index, onHover }: {
+  project: Project; index: number;
+  onHover: (p: Project | null) => void;
+}) {
+  const cfg = lc(project.language);
+  const liveUrl = project.homepage?.trim() || null;
+  const displayName = project.name.replace(/-/g, ' ');
+  const updatedLabel = new Date(project.updated_at).toLocaleDateString('en', { month: 'short', year: 'numeric' });
+  const visibleTopics = project.topics.slice(0, 2);
+  const showCategory = Boolean(project.category) && project.category !== 'Full Stack';
+  const [open, setOpen] = useState(false);
+
+  const toggleOpen = () => setOpen(v => !v);
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-20px' }}
+      transition={{ duration: .6, delay: Math.min(index, 4) * .06, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -6 }}
+      className="h-full"
+    >
+      <SpotlightCard color={cfg.color}>
+        <div
+          className={`project-card-shell group/project-card ${open ? 'is-open' : ''}`}
+          onMouseEnter={() => onHover(project)}
+          onMouseLeave={() => onHover(null)}
+          onFocus={() => onHover(project)}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) onHover(null);
+          }}
+          onClick={toggleOpen}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleOpen();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-expanded={open ? 'true' : 'false'}
+        >
+          <div className="project-card-media">
+            <ReadmeThumbnail
+              src={project.readmeImage}
+              color={cfg.color}
+              name={project.name}
+              eager={project.featured || index < 2}
+            />
+            <div className="project-card-media-overlay" />
+            <div className="project-card-noise" />
+
+            <div className="project-card-badges">
+              {project.featured ? (
+                <span className="project-card-pill project-card-pill-featured">
+                  <Zap className="h-3 w-3" />
+                  Featured
+                </span>
+              ) : (
+                <span className="project-card-pill" style={{ color: cfg.color, borderColor: `${cfg.color}55`, background: `${cfg.color}16` }}>
+                  {project.language ?? 'Project'}
+                </span>
+              )}
+              {showCategory ? (
+                <span className="project-card-pill project-card-pill-light">{project.category}</span>
+              ) : null}
+            </div>
+
+            <div className="project-card-preview">
+              <p className="project-card-preview-kicker">{project.featured ? 'Featured Project' : (project.language ?? 'Project')}</p>
+              <h3 className="project-card-preview-title">{displayName}</h3>
+              <div className="project-card-preview-meta">
+                <span>{updatedLabel}</span>
+                {visibleTopics[0] ? <span>#{visibleTopics[0]}</span> : null}
+              </div>
+            </div>
+          </div>
+
+          <div className="project-card-overlay">
+            <div className="project-card-overlay-header">
+              <div className="min-w-0">
+                <p className="project-card-overlay-kicker">{project.featured ? 'Featured Project' : 'Project Details'}</p>
+                <h3 className="project-card-overlay-title">{displayName}</h3>
+              </div>
+              {showCategory ? (
+                <span className="project-card-overlay-status">{project.category}</span>
+              ) : null}
+            </div>
+
+            <p className="project-card-overlay-description">
+              {project.description ?? 'No description provided.'}
+            </p>
+
+            <div className="project-card-overlay-meta">
+              <span className="project-card-meta-chip" style={{ color: cfg.color, borderColor: `${cfg.color}40` }}>
+                {project.language ?? 'N/A'}
+              </span>
+              <span className="project-card-meta-chip">{updatedLabel}</span>
+              {visibleTopics.map((topic) => (
+                <span key={topic} className="project-card-meta-chip">
+                  #{topic}
+                </span>
+              ))}
+            </div>
+
+            <div className="project-card-actions" onClick={(e) => e.stopPropagation()}>
+              {liveUrl ? (
+                <motion.a
+                  href={liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="project-card-button"
+                >
+                  Live Demo
+                </motion.a>
+              ) : (
+                <div className="project-card-button project-card-button-disabled">
+                  Coming Soon
+                </div>
+              )}
+              <motion.a
+                href={project.html_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                className="project-card-button project-card-button-secondary"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Source Code
+              </motion.a>
+            </div>
+          </div>
+        </div>
+      </SpotlightCard>
+    </motion.article>
   );
 }
 
@@ -884,8 +1057,8 @@ export function Projects() {
           {/* Cards Column */}
           <div className="min-w-0">
             {loading ? (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} wide={i === 0} />)}
+              <div className="project-grid">
+                {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} />)}
               </div>
             ) : (
               <>
@@ -906,12 +1079,11 @@ export function Projects() {
                           </h3>
                           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-pink-500/30 to-transparent" />
                         </div>
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="project-grid">
                           {latestProjects.map((p, i) => (
-                            <ProjectCard
+                            <GridProjectCard
                               key={p.id} project={p} index={i}
                               onHover={setActiveProject}
-                              featured={p.featured}
                             />
                           ))}
                         </div>
@@ -928,9 +1100,9 @@ export function Projects() {
                           </h3>
                           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-500/20 to-transparent" />
                         </div>
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="project-grid">
                           {paginatedOther.map((p, i) => (
-                            <ProjectCard
+                            <GridProjectCard
                               key={p.id} project={p} index={i}
                               onHover={setActiveProject}
                             />
@@ -1024,6 +1196,321 @@ export function Projects() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500&display=swap');
 
+        .project-grid {
+          display: grid;
+          gap: 1.25rem;
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+          align-items: stretch;
+        }
+
+        .project-card-shell {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+          border-radius: 18px;
+          background: #06101d;
+          box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 18px 38px rgba(2,6,23,.38);
+          cursor: pointer;
+          transition: transform .6s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow .6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .project-card-shell:hover,
+        .project-card-shell:focus-within {
+          transform: scale(1.03);
+          box-shadow: 0 24px 44px rgba(2, 6, 23, 0.5);
+        }
+
+        .project-card-media {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: #08111f;
+        }
+
+        .project-card-thumb {
+          position: absolute;
+          inset: 0;
+        }
+
+        .project-card-thumb-fallback {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .project-card-thumb-shimmer {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,.12) 45%, transparent 100%);
+          background-size: 220% 100%;
+          animation: projectThumbShimmer 2.4s ease-in-out infinite;
+          opacity: 0;
+          transition: opacity .2s ease;
+        }
+
+        .project-card-thumb-image {
+          position: absolute;
+          inset: 0;
+          height: 100%;
+          width: 100%;
+          object-fit: cover;
+          object-position: top;
+          transition: opacity .4s ease, transform .7s ease;
+        }
+
+        .project-card-thumb-image-loading {
+          opacity: 0;
+        }
+
+        .project-card-thumb-image-loaded {
+          opacity: 1;
+        }
+
+        .project-card-shell:hover .project-card-thumb-image,
+        .project-card-shell:focus-within .project-card-thumb-image {
+          transform: scale(1.08);
+        }
+
+        .project-card-media-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(2,6,23,.18) 0%, rgba(2,6,23,.46) 100%);
+        }
+
+        .project-card-noise {
+          position: absolute;
+          inset: 0;
+          opacity: .05;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          background-size: 150px 150px;
+          mix-blend-mode: screen;
+        }
+
+        .project-card-badges {
+          position: absolute;
+          top: 14px;
+          left: 14px;
+          right: 14px;
+          z-index: 2;
+          display: flex;
+          justify-content: space-between;
+          gap: .75rem;
+        }
+
+        .project-card-preview {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
+          gap: .32rem;
+          padding: 3.2rem 1rem 1rem;
+          background: linear-gradient(180deg, rgba(2,6,23,0) 0%, rgba(2,6,23,.2) 24%, rgba(2,6,23,.78) 72%, rgba(2,6,23,.92) 100%);
+          transition: opacity .3s ease, transform .3s ease;
+        }
+
+        .project-card-preview-kicker {
+          margin: 0;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+          color: rgba(125,211,252,.74);
+        }
+
+        .project-card-preview-title {
+          margin: 0;
+          font-family: 'Outfit', sans-serif;
+          font-size: 1.05rem;
+          font-weight: 800;
+          line-height: 1.08;
+          color: #f8fafc;
+          text-transform: capitalize;
+        }
+
+        .project-card-preview-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: .55rem;
+          font-size: 11px;
+          font-weight: 600;
+          color: rgba(203,213,225,.72);
+        }
+
+        .project-card-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: .35rem;
+          padding: .45rem .75rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,.14);
+          background: rgba(2,6,23,.62);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: #dbe7f5;
+          backdrop-filter: blur(6px);
+        }
+
+        .project-card-pill-featured {
+          border-color: rgba(245,158,11,.35);
+          background: rgba(146,64,14,.34);
+          color: #fbbf24;
+        }
+
+        .project-card-pill-light {
+          margin-left: auto;
+        }
+
+        .project-card-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 3;
+          display: flex;
+          flex-direction: column;
+          gap: .9rem;
+          padding: 1.1rem;
+          background:
+            radial-gradient(circle at top right, rgba(56,189,248,.12), transparent 28%),
+            linear-gradient(180deg, #09111f, #040915);
+          color: #dbe7f5;
+          transform: translateY(100%);
+          opacity: 0;
+          pointer-events: none;
+          transition: transform .6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity .35s ease;
+          box-sizing: border-box;
+          overflow-y: auto;
+        }
+
+        .project-card-shell.is-open .project-card-overlay {
+          transform: translateY(0);
+          opacity: 1;
+          pointer-events: auto;
+        }
+
+        .project-card-shell.is-open .project-card-preview {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        .project-card-overlay-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: .8rem;
+        }
+
+        .project-card-overlay-kicker {
+          margin: 0 0 .3rem;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: rgba(148,163,184,.82);
+        }
+
+        .project-card-overlay-title {
+          margin: 0;
+          font-family: 'Outfit', sans-serif;
+          font-size: 1.2rem;
+          font-weight: 800;
+          line-height: 1.1;
+          color: #f8fafc;
+        }
+
+        .project-card-overlay-status {
+          display: inline-flex;
+          align-items: center;
+          gap: .35rem;
+          flex-shrink: 0;
+          padding: .45rem .7rem;
+          border-radius: 999px;
+          background: rgba(255,255,255,.08);
+          border: 1px solid rgba(255,255,255,.12);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+          color: #cbd5e1;
+        }
+
+        .project-card-overlay-description {
+          margin: 0;
+          font-size: 12px;
+          line-height: 1.5;
+          color: rgba(203,213,225,.78);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .project-card-overlay-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: .45rem;
+        }
+
+        .project-card-meta-chip {
+          display: inline-flex;
+          align-items: center;
+          padding: .35rem .6rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,.1);
+          background: rgba(255,255,255,.06);
+          font-size: 10px;
+          font-weight: 600;
+          color: #cbd5e1;
+        }
+
+        .project-card-actions {
+          margin-top: auto;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: .65rem;
+        }
+
+        .project-card-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: .5rem;
+          min-height: 42px;
+          padding: .75rem .9rem;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #0f172a, #1d4ed8);
+          border: none;
+          text-decoration: none;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 700;
+          transition: opacity .2s ease, transform .2s ease, background .2s ease;
+        }
+
+        .project-card-button:hover {
+          opacity: .95;
+        }
+
+        .project-card-button-secondary {
+          background: transparent;
+          color: #cbd5e1;
+          border: 1px solid rgba(203,213,225,.32);
+        }
+
+        .project-card-button-disabled {
+          background: rgba(255,255,255,.08);
+          color: #94a3b8;
+          opacity: .88;
+          cursor: default;
+        }
+
         .overflow-x-auto::-webkit-scrollbar { display: none; }
 
         .skeleton-shimmer {
@@ -1040,6 +1527,11 @@ export function Projects() {
           100% { background-position: -200% 0; }
         }
 
+        @keyframes projectThumbShimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -20% 0; }
+        }
+
         input::placeholder { color: rgba(148,163,184,.3); }
         input:focus { outline: none; }
 
@@ -1050,6 +1542,29 @@ export function Projects() {
 
         @media (max-width: 640px) {
           button, a { -webkit-tap-highlight-color: transparent; }
+        }
+
+        @media (max-width: 767px) {
+          .project-card-shell.is-open {
+            aspect-ratio: auto;
+            min-height: 340px;
+          }
+
+          .project-card-shell.is-open .project-card-overlay {
+            position: relative;
+            transform: none;
+            opacity: 1;
+            pointer-events: auto;
+          }
+
+          .project-card-shell.is-open .project-card-media {
+            position: relative;
+            min-height: 210px;
+          }
+
+          .project-card-actions {
+            grid-template-columns: 1fr;
+          }
         }
 
         .project-control-btn {

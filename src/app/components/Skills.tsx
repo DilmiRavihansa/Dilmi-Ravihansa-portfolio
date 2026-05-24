@@ -180,15 +180,15 @@ function SkillBar({
 }) {
   return (
     <div className="group">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <span className="text-sm font-semibold text-white leading-none">{skill.name}</span>
-          <span className="ml-2 text-[11px] font-normal" style={{ color: 'rgba(148,163,184,0.45)' }}>
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <span className="block text-sm font-semibold leading-snug text-white">{skill.name}</span>
+          <span className="mt-0.5 block text-[11px] font-normal leading-snug sm:inline sm:ml-2 sm:mt-0" style={{ color: 'rgba(148,163,184,0.45)' }}>
             {skill.note}
           </span>
         </div>
         <motion.span
-          className="text-xs font-black tabular-nums"
+          className="flex-shrink-0 text-xs font-black tabular-nums"
           style={{ color: accent }}
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
@@ -327,16 +327,16 @@ function GitHubLangBar() {
         backdropFilter: 'blur(16px)',
       }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
           <Github className="h-4 w-4 text-white/60" />
-          <span className="text-sm font-bold text-white">GitHub Languages</span>
+          <span className="truncate text-sm font-bold text-white">GitHub Languages</span>
         </div>
         <a
           href={`https://github.com/${GITHUB_USERNAME}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+          className="inline-flex w-fit items-center gap-1 text-xs text-cyan-400 transition-colors hover:text-cyan-300"
         >
           View Profile <ExternalLink className="h-3 w-3" />
         </a>
@@ -370,9 +370,9 @@ function GitHubLangBar() {
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
+          <div className="flex flex-wrap gap-x-3 gap-y-2 sm:gap-x-4">
             {sorted.map(([lang, count]) => (
-              <div key={lang} className="flex items-center gap-1.5">
+              <div key={lang} className="flex min-w-0 items-center gap-1.5">
                 <span
                   className="h-2.5 w-2.5 rounded-full flex-shrink-0"
                   style={{ background: LANG_COLORS[lang] || '#64748b' }}
@@ -440,11 +440,11 @@ export function Skills() {
 
       <div
         ref={inViewRef}
-        className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 md:px-10 lg:px-16"
+        className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-24 md:px-10 lg:px-16"
         style={{ zIndex: 10 }}
       >
         <motion.div
-          className="mb-10 text-center"
+          className="mb-8 text-center sm:mb-10"
           initial={{ opacity: 0, y: 36 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -453,7 +453,7 @@ export function Skills() {
             initial={{ scale: 0.88, opacity: 0 }}
             animate={inView ? { scale: 1, opacity: 1 } : {}}
             transition={{ delay: 0.1 }}
-            className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[.18em]"
+            className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full px-3.5 py-2 text-[11px] font-bold uppercase tracking-[.14em] sm:px-4 sm:text-xs sm:tracking-[.18em]"
             style={{ background: 'rgba(34,211,238,0.07)', border: '1px solid rgba(34,211,238,0.22)', color: '#22d3ee' }}
           >
             <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
@@ -461,8 +461,8 @@ export function Skills() {
           </motion.div>
 
           <h2
-            className="mb-4 font-black leading-[0.92] tracking-tight"
-            style={{ fontSize: 'clamp(2.2rem,7vw,4.8rem)', fontFamily: "'Outfit', sans-serif" }}
+            className="mx-auto mb-4 max-w-[10ch] text-center font-black leading-[0.95] tracking-tight sm:max-w-none"
+            style={{ fontSize: 'clamp(2.05rem,11vw,4.8rem)', fontFamily: "'Outfit', sans-serif" }}
           >
             <span
               className="bg-clip-text text-transparent"
@@ -473,7 +473,7 @@ export function Skills() {
           </h2>
 
           <p
-            className="mx-auto max-w-xl text-sm leading-relaxed px-2"
+            className="mx-auto max-w-xl px-1 text-sm leading-relaxed sm:px-2"
             style={{ color: 'rgba(148,163,184,0.65)', fontFamily: "'DM Sans', sans-serif" }}
           >
             QA-focused skills, testing tools, and development knowledge based on Dilmi Ravihansa&apos;s GitHub profile,
@@ -490,7 +490,7 @@ export function Skills() {
         </motion.div>
 
         <motion.div
-          className="mb-14 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5"
+          className="mb-10 grid grid-cols-2 gap-3 sm:mb-14 sm:grid-cols-4 sm:gap-5"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.35, duration: 0.7 }}
@@ -500,7 +500,7 @@ export function Skills() {
               key={s.label}
               whileHover={{ y: -5, scale: 1.04 }}
               transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="relative overflow-hidden rounded-2xl p-4 text-center sm:p-5"
+              className="relative min-w-0 overflow-hidden rounded-2xl p-3.5 text-center sm:p-5"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(14px)' }}
             >
               <div
@@ -526,16 +526,16 @@ export function Skills() {
           ))}
         </motion.div>
 
-        <div className="grid items-start gap-10 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_360px]">
-          <div>
+        <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="min-w-0">
             <motion.div
-              className="relative mb-8 -mx-4 sm:mx-0"
+              className="relative mb-6 -mx-4 sm:mx-0 sm:mb-8"
               initial={{ opacity: 0, y: 14 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.45 }}
             >
               <div
-                className="flex gap-1.5 overflow-x-auto px-4 sm:px-0 pb-1 sm:flex-wrap"
+                className="flex gap-2 overflow-x-auto px-4 pb-2 sm:flex-wrap sm:px-0"
                 style={{ scrollbarWidth: 'none' }}
               >
                 {skillCategories.map(cat => {
@@ -546,7 +546,7 @@ export function Skills() {
                       onClick={() => setActiveTab(cat.id)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="relative flex flex-shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300"
+                      className="relative flex flex-shrink-0 items-center gap-2 rounded-xl px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wide transition-all duration-300 sm:px-4 sm:text-xs"
                       style={{
                         fontFamily: "'Outfit', sans-serif",
                         ...(active
@@ -582,14 +582,14 @@ export function Skills() {
               >
                 <SpotlightCard accent={activeCategory.accent}>
                   <div
-                    className="rounded-2xl p-6 sm:p-8"
+                    className="rounded-2xl p-4 sm:p-8"
                     style={{
                       background: 'rgba(255,255,255,0.04)',
                       border: `1px solid ${activeCategory.accent}25`,
                       backdropFilter: 'blur(18px)',
                     }}
                   >
-                    <div className="mb-7 flex items-center gap-3">
+                    <div className="mb-6 flex items-center gap-3 sm:mb-7">
                       <div
                         className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
                         style={{
@@ -599,9 +599,9 @@ export function Skills() {
                       >
                         <activeCategory.icon className="h-5 w-5" style={{ color: activeCategory.accent }} />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <h3
-                          className="text-lg font-black text-white"
+                          className="truncate text-lg font-black text-white"
                           style={{ fontFamily: "'Outfit', sans-serif" }}
                         >
                           {activeCategory.label}
@@ -612,7 +612,7 @@ export function Skills() {
                       </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-5 sm:space-y-6">
                       {activeCategory.skills.map((skill, i) => (
                         <SkillBar
                           key={skill.name}
@@ -629,7 +629,7 @@ export function Skills() {
             </AnimatePresence>
 
             <motion.div
-              className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3"
+              className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
               initial={{ opacity: 0, y: 16 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.6 }}
@@ -640,7 +640,7 @@ export function Skills() {
                   onClick={() => setActiveTab(cat.id)}
                   whileHover={{ y: -3, scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2.5 rounded-xl p-3.5 text-left transition-all duration-300"
+                  className="flex min-w-0 items-center gap-2.5 rounded-xl p-3.5 text-left transition-all duration-300"
                   style={{
                     background: activeTab === cat.id ? `${cat.accent}14` : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${activeTab === cat.id ? cat.accent + '40' : 'rgba(255,255,255,0.07)'}`,
@@ -653,8 +653,8 @@ export function Skills() {
                   >
                     <cat.icon className="h-4 w-4" style={{ color: cat.accent }} />
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-white leading-none" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-bold leading-none text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
                       {cat.label}
                     </p>
                     <p className="mt-0.5 text-[10px]" style={{ color: 'rgba(148,163,184,0.45)' }}>
@@ -670,7 +670,7 @@ export function Skills() {
           </div>
 
           <motion.div
-            className="flex flex-col gap-5 lg:sticky lg:top-8 lg:self-start"
+            className="min-w-0 flex flex-col gap-5 lg:sticky lg:top-8 lg:self-start"
             initial={{ opacity: 0, x: 36 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -678,7 +678,7 @@ export function Skills() {
             <GitHubLangBar />
 
             <div
-              className="rounded-2xl p-5 sm:p-6"
+              className="rounded-2xl p-4 sm:p-6"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}
             >
               <h3
@@ -699,8 +699,8 @@ export function Skills() {
                   const { ref: softRef, inView: softInView } = useInView({ triggerOnce: true });
                   return (
                     <div key={s.label} ref={softRef}>
-                      <div className="flex justify-between mb-1.5">
-                        <span className="text-xs font-semibold text-slate-300">{s.label}</span>
+                      <div className="mb-1.5 flex justify-between gap-3">
+                        <span className="min-w-0 text-xs font-semibold leading-snug text-slate-300">{s.label}</span>
                         <span className="text-[11px] font-black" style={{ color: s.color }}>{s.pct}%</span>
                       </div>
                       <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
@@ -719,7 +719,7 @@ export function Skills() {
             </div>
 
             <div
-              className="rounded-2xl p-5 sm:p-6"
+              className="rounded-2xl p-4 sm:p-6"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}
             >
               <h3
@@ -743,10 +743,10 @@ export function Skills() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.07 + 0.15, duration: 0.4 }}
-                    className="flex items-center gap-2.5 text-xs text-slate-300 sm:text-sm"
+                    className="flex items-start gap-2.5 text-xs leading-relaxed text-slate-300 sm:text-sm"
                   >
                     <span className="flex-shrink-0 text-base">{f.icon}</span>
-                    <span>{f.text}</span>
+                    <span className="min-w-0">{f.text}</span>
                   </motion.div>
                 ))}
               </div>
@@ -758,7 +758,7 @@ export function Skills() {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              className="group flex items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-bold text-white relative overflow-hidden"
+              className="group relative flex items-center justify-center gap-2.5 overflow-hidden rounded-2xl px-4 py-4 text-sm font-bold text-white"
               style={{
                 background: 'linear-gradient(135deg,#0ea5e9,#6366f1)',
                 boxShadow: '0 0 28px rgba(99,102,241,0.35)',
@@ -779,8 +779,13 @@ export function Skills() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500&display=swap');
         #skills { scroll-margin-top: 80px; }
+        #skills * { box-sizing: border-box; }
         .overflow-x-auto::-webkit-scrollbar { display: none; }
         @media (max-width: 640px) {
+          #skills { overflow-x: hidden; }
+          #skills h2 span {
+            overflow-wrap: anywhere;
+          }
           button, a { -webkit-tap-highlight-color: transparent; }
         }
       `}</style>
