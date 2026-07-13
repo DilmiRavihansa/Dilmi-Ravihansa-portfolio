@@ -30,6 +30,9 @@ const socialLinks = [
   { icon: Twitter, href: 'https://twitter.com/', label: 'Twitter', color: 'hover:text-[#1DA1F2]' }, // Update if you have a Twitter handle
 ];
 
+const resumeUrl =
+  'https://drive.google.com/file/d/1eN5tcMazmxV6eCbqNv3Y6d2G9hYKQoNg/view?usp=sharing';
+
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -454,6 +457,7 @@ export function Navigation() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => window.open(resumeUrl, '_blank', 'noopener,noreferrer')}
                   className="w-full mt-4 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />

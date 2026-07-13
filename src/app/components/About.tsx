@@ -26,7 +26,7 @@ const aboutVideo = new URL('../../assets/videos/video10.mp4', import.meta.url).h
 
 // ─── Resume Link ─────────────────────────────────────────────────────────────
 const resumeUrl =
-  'https://1drv.ms/b/c/14d80c7f795708ba/IQBKfilFl7kgRbGiyaifdSUXAZ-fJfAQJFJGR36TaL8vPXc?e=a2ahAK';
+  'https://drive.google.com/file/d/1eN5tcMazmxV6eCbqNv3Y6d2G9hYKQoNg/view?usp=sharing';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PLAYBACK_RATE = 0.45;

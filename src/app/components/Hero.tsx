@@ -36,7 +36,7 @@ export function Hero() {
 
   // Updated resume link
   const resumeFile =
-    'https://1drv.ms/b/c/14d80c7f795708ba/IQBKfilFl7kgRbGiyaifdSUXAZ-fJfAQJFJGR36TaL8vPXc?e=a2ahAK';
+    'https://drive.google.com/file/d/1eN5tcMazmxV6eCbqNv3Y6d2G9hYKQoNg/view?usp=sharing';
 
   const socials: Social[] = [
     {
