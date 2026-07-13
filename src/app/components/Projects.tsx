@@ -56,6 +56,22 @@ interface Project extends GithubRepo {
 type SortKey = 'stars' | 'forks' | 'updated' | 'name';
 type ProjectSource = 'github' | 'cache' | 'fallback';
 
+const CURRENT_SITE_LIVE_DEMO = '__current_site__';
+
+const LIVE_DEMO_URLS: Record<string, string> = {
+  'fishhub': 'https://fishhub-xi.vercel.app/',
+  'modern-furniture-web': 'https://furnihub-azure.vercel.app/',
+  'modern-furniture-website': 'https://furnihub-azure.vercel.app/',
+  'furnihub': 'https://furnihub-azure.vercel.app/',
+  'fitpor-trainner-website-with-admin-panel': 'https://manula-d-fitness.vercel.app/',
+  'fitpor-trainer-website-with-admin-panel': 'https://manula-d-fitness.vercel.app/',
+  'fitpor-trainner-website': 'https://manula-d-fitness.vercel.app/',
+  'fitpor-trainer-website': 'https://manula-d-fitness.vercel.app/',
+  'gym-trainer-website-client-management-system': 'https://manula-d-fitness.vercel.app/',
+  'dilmi-ravihansa-portfolio': 'https://dilmi-ravihansa-portfolio-43xu.vercel.app/',
+  'portfolio-website': 'https://dilmi-ravihansa-portfolio-43xu.vercel.app/',
+};
+
 const FALLBACK_PROJECTS: Project[] = [
   {
     id: -1,
@@ -131,10 +147,10 @@ const FALLBACK_PROJECTS: Project[] = [
   },
   {
     id: -5,
-    name: 'Portfolio-Website',
-    description: 'Responsive React portfolio with animated sections, project discovery, and polished contact experience.',
+    name: 'Dilmi-Ravihansa-portfolio',
+    description: 'Responsive React portfolio with animated sections, project discovery, hosted live demo, and polished contact experience.',
     html_url: `https://github.com/${GITHUB_USERNAME}`,
-    homepage: null,
+    homepage: 'https://dilmi-ravihansa-portfolio-43xu.vercel.app/',
     stargazers_count: 1,
     forks_count: 0,
     watchers_count: 1,
@@ -172,6 +188,29 @@ const sortedFallbackProjects = () =>
 
 const categoriesFrom = (list: Project[]) =>
   ['All', ...Array.from(new Set(list.map(p => p.category))).sort()];
+
+const currentSiteUrl = () => {
+  if (typeof window === 'undefined') return null;
+  return window.location.origin;
+};
+
+const normalizeHomepage = (name: string, homepage: string | null) => {
+  const clean = homepage?.trim();
+  if (clean && clean !== CURRENT_SITE_LIVE_DEMO) return clean;
+
+  const override = LIVE_DEMO_URLS[name.toLowerCase()];
+  if (override === CURRENT_SITE_LIVE_DEMO || clean === CURRENT_SITE_LIVE_DEMO) {
+    return currentSiteUrl();
+  }
+
+  return override ?? null;
+};
+
+const withLiveDemoUrls = (list: Project[]) =>
+  list.map(project => ({
+    ...project,
+    homepage: normalizeHomepage(project.name, project.homepage),
+  }));
 
 // ─── Language palette ─────────────────────────────────────────────────────────
 const LANG_CONFIG: Record<string, { color: string; glow: string; dot: string }> = {
@@ -922,9 +961,9 @@ export function Projects() {
     if (!force) {
       const cached = loadCache();
       if (cached?.length) {
-        const sorted = [...cached].sort((a, b) => 
+        const sorted = withLiveDemoUrls([...cached].sort((a, b) => 
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        );
+        ));
         setProjects(sorted);
         setCategories(categoriesFrom(sorted));
         setDataSource('cache');
@@ -942,6 +981,7 @@ export function Projects() {
         const batch = repos.slice(i, i + 8);
         const results = await Promise.all(batch.map(async (r): Promise<Project> => ({
           ...r, language: r.language ?? null, topics: r.topics ?? [],
+          homepage: normalizeHomepage(r.name, r.homepage),
           featured: featuredIds.has(r.id),
           category: deriveCategory(r),
           readmeImage: await fetchReadmeImage(r.owner.login, r.name),
@@ -967,9 +1007,9 @@ export function Projects() {
         if (raw) {
           const { data } = JSON.parse(raw);
           if (data?.length) {
-            const sorted = [...data].sort((a, b) => 
+            const sorted = withLiveDemoUrls([...data].sort((a, b) => 
               new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-            );
+            ));
             setProjects(sorted);
             setCategories(categoriesFrom(sorted));
             setDataSource('cache');
@@ -977,7 +1017,7 @@ export function Projects() {
           }
         }
       } catch { /**/ }
-      const fallback = sortedFallbackProjects();
+      const fallback = withLiveDemoUrls(sortedFallbackProjects());
       setProjects(fallback);
       setCategories(categoriesFrom(fallback));
       setDataSource('fallback');
