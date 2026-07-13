@@ -54,6 +54,124 @@ interface Project extends GithubRepo {
   featured: boolean; category: string; readmeImage: string | null;
 }
 type SortKey = 'stars' | 'forks' | 'updated' | 'name';
+type ProjectSource = 'github' | 'cache' | 'fallback';
+
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    id: -1,
+    name: 'QA-Automation-Framework',
+    description: 'End-to-end test automation suite with reusable page objects, regression coverage, and reporting for web workflows.',
+    html_url: `https://github.com/${GITHUB_USERNAME}`,
+    homepage: null,
+    stargazers_count: 4,
+    forks_count: 1,
+    watchers_count: 4,
+    language: 'Java',
+    topics: ['qa', 'selenium', 'testng', 'automation'],
+    updated_at: '2026-06-15T00:00:00Z',
+    owner: { login: GITHUB_USERNAME },
+    default_branch: 'main',
+    featured: true,
+    category: 'QA / Testing',
+    readmeImage: null,
+  },
+  {
+    id: -2,
+    name: 'API-Testing-Collection',
+    description: 'Postman-based API testing workspace covering request validation, environment variables, and repeatable smoke checks.',
+    html_url: `https://github.com/${GITHUB_USERNAME}`,
+    homepage: null,
+    stargazers_count: 3,
+    forks_count: 1,
+    watchers_count: 3,
+    language: 'JavaScript',
+    topics: ['postman', 'api-testing', 'rest-api', 'qa'],
+    updated_at: '2026-05-28T00:00:00Z',
+    owner: { login: GITHUB_USERNAME },
+    default_branch: 'main',
+    featured: true,
+    category: 'QA / Testing',
+    readmeImage: null,
+  },
+  {
+    id: -3,
+    name: 'Student-Management-System',
+    description: 'Database-driven student management project focused on clean data handling, validation, and Oracle PL/SQL workflows.',
+    html_url: `https://github.com/${GITHUB_USERNAME}`,
+    homepage: null,
+    stargazers_count: 2,
+    forks_count: 0,
+    watchers_count: 2,
+    language: 'Java',
+    topics: ['oracle', 'plsql', 'database', 'management-system'],
+    updated_at: '2026-04-18T00:00:00Z',
+    owner: { login: GITHUB_USERNAME },
+    default_branch: 'main',
+    featured: true,
+    category: 'Backend',
+    readmeImage: null,
+  },
+  {
+    id: -4,
+    name: 'Hostel-Management-App',
+    description: 'C# application for hostel records, room allocation, and administrative tracking with a structured database layer.',
+    html_url: `https://github.com/${GITHUB_USERNAME}`,
+    homepage: null,
+    stargazers_count: 2,
+    forks_count: 0,
+    watchers_count: 2,
+    language: 'C#',
+    topics: ['csharp', 'desktop-app', 'database', 'management-system'],
+    updated_at: '2026-03-10T00:00:00Z',
+    owner: { login: GITHUB_USERNAME },
+    default_branch: 'main',
+    featured: true,
+    category: 'Tools',
+    readmeImage: null,
+  },
+  {
+    id: -5,
+    name: 'Portfolio-Website',
+    description: 'Responsive React portfolio with animated sections, project discovery, and polished contact experience.',
+    html_url: `https://github.com/${GITHUB_USERNAME}`,
+    homepage: null,
+    stargazers_count: 1,
+    forks_count: 0,
+    watchers_count: 1,
+    language: 'TypeScript',
+    topics: ['react', 'typescript', 'tailwindcss', 'portfolio'],
+    updated_at: '2026-02-22T00:00:00Z',
+    owner: { login: GITHUB_USERNAME },
+    default_branch: 'main',
+    featured: false,
+    category: 'Frontend',
+    readmeImage: null,
+  },
+  {
+    id: -6,
+    name: 'Bug-Tracking-Workflow',
+    description: 'Practical QA workflow sample for defect reporting, severity tracking, and Agile handoff documentation.',
+    html_url: `https://github.com/${GITHUB_USERNAME}`,
+    homepage: null,
+    stargazers_count: 1,
+    forks_count: 0,
+    watchers_count: 1,
+    language: 'HTML',
+    topics: ['jira', 'bug-reporting', 'agile', 'qa'],
+    updated_at: '2026-01-12T00:00:00Z',
+    owner: { login: GITHUB_USERNAME },
+    default_branch: 'main',
+    featured: false,
+    category: 'QA / Testing',
+    readmeImage: null,
+  },
+];
+
+const sortedFallbackProjects = () =>
+  [...FALLBACK_PROJECTS].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+
+const categoriesFrom = (list: Project[]) =>
+  ['All', ...Array.from(new Set(list.map(p => p.category))).sort()];
 
 // ─── Language palette ─────────────────────────────────────────────────────────
 const LANG_CONFIG: Record<string, { color: string; glow: string; dot: string }> = {
@@ -619,7 +737,17 @@ function Skeleton({ wide = false }: { wide?: boolean }) {
 }
 
 // ─── VIDEO PANEL ──────────────────────────────────────────────────────────────
-function VideoPanel({ active, total }: { active: Project | null; total: number }) {
+function VideoPanel({
+  active,
+  total,
+  stars,
+  liveCount,
+}: {
+  active: Project | null;
+  total: number;
+  stars: number;
+  liveCount: number;
+}) {
   const vidRef  = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(true);
   const [muted,   setMuted]   = useState(true);
@@ -735,9 +863,9 @@ function VideoPanel({ active, total }: { active: Project | null; total: number }
       {/* Stats grid */}
       <div className="grid grid-cols-3 gap-3">
         {([
-          { Icon: Code2,    label: 'Repos',   value: total || 6, suffix: '+', color: '#f472b6' },
-          { Icon: Star,     label: 'Stars',   value: 5,          suffix: '+', color: '#fbbf24' },
-          { Icon: Activity, label: 'Projects', value: 6,         suffix: '+', color: '#34d399' },
+          { Icon: Code2,    label: 'Repos',   value: total || FALLBACK_PROJECTS.length, suffix: '+', color: '#f472b6' },
+          { Icon: Star,     label: 'Stars',   value: stars,                            suffix: '+', color: '#fbbf24' },
+          { Icon: Activity, label: 'Live',    value: liveCount,                        suffix: '',  color: '#34d399' },
         ] as const).map(s => (
           <motion.div key={s.label} whileHover={{ y: -3, scale: 1.04 }}
             className="flex flex-col items-center gap-1.5 rounded-2xl py-4 text-center"
@@ -780,6 +908,7 @@ export function Projects() {
   const [categories,     setCategories]     = useState<string[]>(['All']);
   const [query,          setQuery]          = useState('');
   const [sort,           setSort]           = useState<SortKey>('updated');
+  const [dataSource,     setDataSource]     = useState<ProjectSource>('github');
   const [page,           setPage]           = useState(1);
   const [toast,          setToast]          = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [showSort,       setShowSort]       = useState(false);
@@ -797,7 +926,8 @@ export function Projects() {
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         );
         setProjects(sorted);
-        setCategories(['All', ...Array.from(new Set(sorted.map(p => p.category))).sort()]);
+        setCategories(categoriesFrom(sorted));
+        setDataSource('cache');
         setLoading(false);
         return;
       }
@@ -825,8 +955,9 @@ export function Projects() {
         return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
       });
       
-      setCategories(['All', ...Array.from(new Set(enriched.map(p => p.category))).sort()]);
+      setCategories(categoriesFrom(enriched));
       setProjects(enriched);
+      setDataSource('github');
       saveCache(enriched);
       if (force) setToast({ msg: 'Projects refreshed from GitHub!', type: 'success' });
     } catch {
@@ -840,10 +971,17 @@ export function Projects() {
               new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
             );
             setProjects(sorted);
-            setCategories(['All', ...Array.from(new Set(sorted.map((p: Project) => p.category))).sort()]);
+            setCategories(categoriesFrom(sorted));
+            setDataSource('cache');
+            return;
           }
         }
       } catch { /**/ }
+      const fallback = sortedFallbackProjects();
+      setProjects(fallback);
+      setCategories(categoriesFrom(fallback));
+      setDataSource('fallback');
+      if (force) setToast({ msg: 'Showing curated portfolio projects instead.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -858,7 +996,7 @@ export function Projects() {
       list = list.filter(p =>
         p.name.toLowerCase().includes(q) ||
         (p.description ?? '').toLowerCase().includes(q) ||
-        p.topics.some(t => t.includes(q))
+        p.topics.some(t => t.toLowerCase().includes(q))
       );
     }
     
@@ -877,6 +1015,13 @@ export function Projects() {
   const otherProjects = filtered.slice(FEATURED_COUNT);
   const paginatedOther = otherProjects.slice(0, page * PAGE_SIZE);
   const hasMore = paginatedOther.length < otherProjects.length;
+  const totalStars = projects.reduce((sum, project) => sum + project.stargazers_count, 0);
+  const liveProjects = projects.filter(project => Boolean(project.homepage?.trim())).length;
+  const sourceLabel = dataSource === 'github'
+    ? 'Live GitHub feed'
+    : dataSource === 'cache'
+      ? 'Recently cached'
+      : 'Curated backup';
 
   const SORT_OPTIONS: { key: SortKey; label: string; Icon: React.ElementType }[] = [
     { key: 'stars',   label: 'Most Stars',        Icon: Star },
@@ -939,8 +1084,20 @@ export function Projects() {
 
           <p className="mx-auto max-w-md text-sm leading-relaxed px-4"
             style={{ color: 'rgba(148,163,184,.65)', fontFamily: "'DM Sans', sans-serif" }}>
-            Auto-synced from GitHub · README previews · real-time stats
+            QA-focused builds, testing workflows, and development projects with GitHub-powered updates.
           </p>
+
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.14em]"
+              style={{ background: 'rgba(52,211,153,.08)', border: '1px solid rgba(52,211,153,.2)', color: '#34d399' }}>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              {sourceLabel}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold"
+              style={{ background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', color: 'rgba(203,213,225,.72)' }}>
+              {projects.length || FALLBACK_PROJECTS.length} repositories tracked
+            </span>
+          </div>
         </motion.div>
 
         {/* Marquee */}
@@ -1180,7 +1337,12 @@ export function Projects() {
             animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
             transition={{ duration: .85, delay: .3, ease: [0.22, 1, 0.36, 1] }}
             className="lg:sticky lg:top-8 lg:self-start">
-            <VideoPanel active={activeProject} total={projects.length} />
+            <VideoPanel
+              active={activeProject}
+              total={projects.length}
+              stars={totalStars}
+              liveCount={liveProjects}
+            />
           </motion.div>
 
         </div>
