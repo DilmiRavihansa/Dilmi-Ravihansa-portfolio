@@ -4,7 +4,6 @@ import {
   Rocket,
   Brain,
   Users,
-  Coffee,
   Sparkles,
   Server,
   Github,
@@ -37,7 +36,7 @@ const features = [
     icon: Bug,
     title: 'Quality Assurance',
     description:
-      'Manual & automated testing, test case design, bug tracking, and ensuring flawless software delivery.',
+      'Manual testing, test case design, regression checks, defect reporting, and release-focused validation.',
     accent: '#f472b6',
     grad: 'rgba(244,114,182,0.08)',
     border: 'rgba(244,114,182,0.2)',
@@ -47,7 +46,7 @@ const features = [
     icon: ShieldCheck,
     title: 'Test Automation',
     description:
-      'Building robust automated test suites with Selenium, Cypress, and integrating with CI/CD pipelines.',
+      'Creating repeatable Selenium and Cypress flows that make critical user journeys easier to verify.',
     accent: '#38bdf8',
     grad: 'rgba(56,189,248,0.08)',
     border: 'rgba(56,189,248,0.2)',
@@ -65,9 +64,9 @@ const features = [
   },
   {
     icon: Server,
-    title: 'Full-Stack Dev',
+    title: 'Development Support',
     description:
-      'Building complete web/mobile apps with React, Node.js, Flutter, Java, and Spring Boot.',
+      'Supporting web and mobile projects with React, Node.js, Flutter, Java, Spring Boot, and database skills.',
     accent: '#34d399',
     grad: 'rgba(52,211,153,0.08)',
     border: 'rgba(52,211,153,0.2)',
@@ -111,13 +110,20 @@ const journey = [
     icon: Brain,
     color: '#f472b6',
   },
+  {
+    year: 'Now',
+    title: 'QA Engineer',
+    desc: 'Working at Cosmorforge Pvt Ltd, focusing on reliable software delivery through testing and collaboration.',
+    icon: ShieldCheck,
+    color: '#38bdf8',
+  },
 ];
 
 const achievements = [
   {
     icon: ShieldCheck,
-    title: 'QA Engineer',
-    desc: 'Ensuring quality through comprehensive manual and automated testing strategies.',
+    title: 'QA Engineer at Cosmorforge',
+    desc: 'Contributing to software quality through manual testing, automation support, and clear defect communication.',
     grad: '135deg,#f472b6,#ec4899',
   },
   {
@@ -129,7 +135,7 @@ const achievements = [
   {
     icon: TestTube,
     title: 'Test Automation',
-    desc: 'Building Selenium & Cypress test suites for reliable, repeatable testing processes.',
+    desc: 'Building Selenium and Cypress test suites for reliable, repeatable testing processes.',
     grad: '135deg,#38bdf8,#06b6d4',
   },
   {
@@ -163,10 +169,10 @@ const stats = [
     grad: '135deg,#34d399,#10b981',
   },
   {
-    icon: Coffee,
-    label: 'Coffee',
+    icon: ShieldCheck,
+    label: 'QA Focus',
     value: '∞',
-    note: 'Never Enough',
+    note: 'Quality Mindset',
     grad: '135deg,#fb923c,#ef4444',
   },
 ];
@@ -174,10 +180,10 @@ const stats = [
 const skills = [
   { label: 'Test Automation (Selenium/Cypress)', pct: 85 },
   { label: 'API Testing (Postman/REST)', pct: 82 },
+  { label: 'Defect Reporting & JIRA', pct: 88 },
   { label: 'Java / Spring Boot', pct: 80 },
   { label: 'React / Node.js', pct: 78 },
   { label: 'Flutter / Kotlin', pct: 75 },
-  { label: 'Bug Tracking (JIRA)', pct: 88 },
 ];
 
 // ─── Magnetic Button ──────────────────────────────────────────────────────────
@@ -416,8 +422,8 @@ export function About() {
             animate={heroInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.45 }}
           >
-            QA Engineer & Software Engineering undergraduate from Sri Lanka, dedicated to
-            delivering flawless, reliable software through comprehensive testing and
+            QA Engineer at Cosmorforge Pvt Ltd and Software Engineering graduate from
+            Sri Lanka, focused on reliable releases, clear defect reporting, and
             quality-first development.
           </motion.p>
 
@@ -429,7 +435,7 @@ export function About() {
           >
             {[
               { icon: ShieldCheck, label: 'Quality First' },
-              { icon: Bug, label: 'Bug Hunter' },
+              { icon: Bug, label: 'Defect Detective' },
               { icon: Workflow, label: 'Agile QA' },
             ].map(({ icon: Icon, label }) => (
               <span
@@ -586,7 +592,7 @@ export function About() {
                 </span>
               </h3>
               <p className="mt-2 text-sm font-medium" style={{ color: '#f472b6' }}>
-                QA Engineer · HND Software Engineering · NIBM, Galle
+                QA Engineer at Cosmorforge Pvt Ltd - HND Software Engineering
               </p>
             </div>
 
@@ -597,7 +603,7 @@ export function About() {
               <p>
                 I'm a{' '}
                 <span className="font-semibold text-pink-400">
-                  dedicated QA Engineer and Software Engineering undergraduate
+                  dedicated QA Engineer and Software Engineering graduate
                 </span>{' '}
                 from NIBM, Sri Lanka — with a mission to deliver flawless, reliable
                 software products.
@@ -606,8 +612,8 @@ export function About() {
                 With a{' '}
                 <span className="font-semibold text-purple-400">quality-first mindset</span>,
                 I combine manual & automated testing with full-stack development skills.
-                From building test suites with Selenium/Cypress to developing features with
-                React and Node.js.
+                From writing clear test cases and defect reports to building Selenium and
+                Cypress flows, I enjoy making software easier to trust before it reaches users.
               </p>
             </div>
 
@@ -935,7 +941,7 @@ export function About() {
                 <s.icon className="absolute left-1/2 top-[1.75rem] h-6 w-6 -translate-x-1/2 text-white/70 transition-transform duration-300 group-hover:scale-110" />
 
                 <div className="mt-4 text-4xl font-black tracking-tight text-white">
-                  <Counter to={s.value} />
+                  <Counter to={s.label === 'QA Focus' ? '100%' : s.value} />
                 </div>
                 <div className="mb-0.5 mt-1 text-sm font-medium text-slate-300">{s.label}</div>
                 <div className="text-[11px] uppercase tracking-widest" style={{ color: 'rgba(244,114,182,.6)' }}>
